@@ -1,0 +1,47 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  name: acme-fitness.external.demo-dependencies.learn.1.0.2
+spec:
+  refName: acme-fitness.external.demo-dependencies.learn
+  version: 1.0.2
+  releaseNotes: |
+    Page release of the acme-fitness package, adding labels.
+  valuesSchema:
+    openAPIv3:
+      type: object
+      additionalProperties: false
+      properties:
+        namespace:
+          type: string
+          description: Namespace to deploy
+          default: app-acme-fitness
+        fqdn:
+          type: string
+          description: FQDN
+          default: foo.org
+        region:
+          type: string
+          description: Region
+          default: east
+        client:
+          type: string
+          description: Client
+          default: client-0
+  template:
+    spec:
+      fetch:
+      - git:
+          url: https://github.com/bkirkware/acme-fitness-package-repo
+          ref: origin/main
+          subPath: packages/acme-fitness/1.0.2/bundle
+      template:
+      - ytt:
+          paths:
+          - config/
+      - kbld:
+          paths:
+          - .imgpkg/images.yml
+          - '-'
+      deploy:
+      - kapp: {}
